@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pygeometry-sandbox"
+version = "0.1.0"
+description = "Python bindings for a variety of geometry processing libraries"
+dependencies = [
+    "matplotlib>=3.10.6",
+    "pytriwild @ git+https://github.com/8bit-euclid/TriWild.git@master"
+]
+
+[project.optional-dependencies]
+dev = []
