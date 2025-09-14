@@ -6,10 +6,12 @@ build-backend = "setuptools.build_meta"
 name = "pygeometry-sandbox"
 version = "0.1.0"
 description = "Python bindings for a variety of geometry processing libraries"
+requires-python = ">=3.12"
 dependencies = [
+    "numpy>=1.24.0",
     "matplotlib>=3.10.6",
-    "pytriwild @ git+https://github.com/8bit-euclid/TriWild.git@master",
-    "wildmeshing @ git+https://github.com/wildmeshing/wildmeshing-python.git@0.4",
+    # "pytriwild @ git+https://github.com/8bit-euclid/TriWild.git@master",
+    # "wildmeshing @ git+https://github.com/wildmeshing/wildmeshing-python.git@0.4",
     "PythonCDT @ git+https://github.com/8bit-euclid/PythonCDT.git@master"
 ]
 

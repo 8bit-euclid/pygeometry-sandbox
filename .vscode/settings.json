@@ -1,8 +1,8 @@
 {
-    "python.defaultInterpreterPath": "/usr/local/bin/python",
+    "python.defaultInterpreterPath": "./.venv/bin/python3",
+    "python.analysis.stubPath": "./.venv/lib/python3.12/site-packages",
     "python.analysis.extraPaths": [
-        "/home/vscode/.local/lib/python3.12/site-packages"
+        "./.venv/lib/python3.12/site-packages"
     ],
-    "python.analysis.stubPath": "/home/vscode/.local/lib/python3.12/site-packages",
     "python.analysis.typeCheckingMode": "basic"
 }
