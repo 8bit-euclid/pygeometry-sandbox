@@ -10,6 +10,7 @@ requires-python = ">=3.12"
 dependencies = [
     "numpy>=1.24.0",
     "matplotlib>=3.10.6",
+    "marimo>=0.16.1",
     # "pytriwild @ git+https://github.com/8bit-euclid/TriWild.git@master",
     # "wildmeshing @ git+https://github.com/wildmeshing/wildmeshing-python.git@0.4",
     "PythonCDT @ git+https://github.com/8bit-euclid/PythonCDT.git@master"
