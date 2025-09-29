@@ -11,9 +11,11 @@ dependencies = [
     "numpy>=1.24.0",
     "matplotlib>=3.10.6",
     "marimo>=0.16.1",
+    "scipy>=1.16.2",
     # "pytriwild @ git+https://github.com/8bit-euclid/TriWild.git@master",
     # "wildmeshing @ git+https://github.com/wildmeshing/wildmeshing-python.git@0.4",
-    "PythonCDT @ git+https://github.com/8bit-euclid/PythonCDT.git@master"
+    "PythonCDT @ git+https://github.com/8bit-euclid/PythonCDT.git@master",
+    "joblib>=1.5.2",
 ]
 
 [project.optional-dependencies]
