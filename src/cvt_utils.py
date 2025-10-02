@@ -20,7 +20,7 @@ class SpaceIterMesh:
         self.cell_size: Callable[[float | np.ndarray],
                                  float | np.ndarray] | None = None
         self.seed_matrix = np.zeros((n_iters, n_cells))
-        self.bound_matrix = np.zeros((n_cells + 1, n_iters))
+        self.bound_matrix = np.zeros((n_iters, n_cells + 1))
 
     @property
     def length(self):
@@ -41,7 +41,7 @@ class SpaceIterMesh:
         return mass
 
     def cell_centroid(self, i_cell: int, iter: int) -> float:
-        bounds = self.bound_matrix[:, iter]
+        bounds = self.bound_matrix[iter, :]
         x_l = bounds[i_cell]
         x_r = bounds[i_cell + 1]
 
@@ -56,8 +56,8 @@ class SpaceIterMesh:
 
     def cell_energy(self, i_cell: int, iter: int, order: int = 5) -> float:
         x_i = self.seed_matrix[iter, i_cell]
-        x_l = self.bound_matrix[i_cell, iter]
-        x_r = self.bound_matrix[i_cell + 1, iter]
+        x_l = self.bound_matrix[iter, i_cell]
+        x_r = self.bound_matrix[iter, i_cell + 1]
         def integrand(x): return self.cell_density(x) * (x - x_i) ** 2
         energy, err = fixed_quad(integrand, x_l, x_r, n=order)
         return energy
@@ -74,12 +74,12 @@ class SpaceIterMesh:
             np.random.uniform(self.x_min, self.x_max, self.n_cells))
 
     def set_boundary_conditions(self):
-        self.bound_matrix[0, :] = self.x_min   # First row
-        self.bound_matrix[-1, :] = self.x_max  # Last row
+        self.bound_matrix[:, 0] = self.x_min   # First column
+        self.bound_matrix[:, -1] = self.x_max  # Last column
 
     def update_cell_bounds(self, iter: int):
         seeds = self.seed_matrix[iter, :]
-        bounds = self.bound_matrix[:, iter]
+        bounds = self.bound_matrix[iter, :]
         bounds[1:-1] = 0.5 * (seeds[:-1] + seeds[1:])  # Interior bounds
 
     def update_cell_seeds(self, iter: int):

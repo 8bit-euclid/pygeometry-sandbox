@@ -64,7 +64,7 @@ def plot_computed_cell_size(mesh: SpaceIterMesh):
     # Get cell sizes at centroids
     centroids = np.array([mesh.cell_centroid(ic, mesh.n_iters - 1)
                           for ic in range(n_cells)])
-    bounds = mesh.bound_matrix[:, mesh.n_iters - 1]
+    bounds = mesh.bound_matrix[mesh.n_iters - 1, :]
     cell_sizes = bounds[1:] - bounds[:-1]
 
     # Plot cell sizes
@@ -126,8 +126,7 @@ def plot_bound_paths(mesh: SpaceIterMesh, start_iter: int = 0, end_iter: int | N
     # Plot each seed path as a separate line
     for bound_idx in range(n_bounds):
         # Extract seed positions for this seed across all iterations
-        bound_positions = mesh.bound_matrix[bound_idx,
-                                            start_iter: end_iter + 1]
+        bound_positions = mesh.bound_matrix[start_iter: end_iter + 1, bound_idx]
 
         # Plot with negative iterations (so iteration 0 is at top) but use white color
         plt.plot(bound_positions, -iterations, "-",  # type: ignore
@@ -175,8 +174,8 @@ def animate_cells(
     fig, ax = plt.subplots(figsize=(10, 0.25), dpi=300)
 
     # Get global bounds for consistent axis limits
-    x_min = mesh.bound_matrix[0, :].min()
-    x_max = mesh.bound_matrix[-1, :].max()
+    x_min = mesh.bound_matrix[:, 0].min()
+    x_max = mesh.bound_matrix[:, -1].max()
 
     ax.set_xlim(x_min, x_max)
     ax.set_ylim(-1, 1)
@@ -200,7 +199,7 @@ def animate_cells(
         delta_iter = int(frame * iters_per_frame)
         iter = min(start_iter+delta_iter, mesh.n_iters-1)
         seeds = mesh.seed_matrix[iter, :]
-        bounds = mesh.bound_matrix[:, iter]
+        bounds = mesh.bound_matrix[iter, :]
 
         # Clear previous boundary lines
         for line in boundary_lines:
