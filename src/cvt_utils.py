@@ -19,7 +19,7 @@ class SpaceIterMesh:
         self.n_iters = n_iters
         self.cell_size: Callable[[float | np.ndarray],
                                  float | np.ndarray] | None = None
-        self.seed_matrix = np.zeros((n_cells, n_iters))
+        self.seed_matrix = np.zeros((n_iters, n_cells))
         self.bound_matrix = np.zeros((n_cells + 1, n_iters))
 
     @property
@@ -55,7 +55,7 @@ class SpaceIterMesh:
         return nu / de
 
     def cell_energy(self, i_cell: int, iter: int, order: int = 5) -> float:
-        x_i = self.seed_matrix[i_cell, iter]
+        x_i = self.seed_matrix[iter, i_cell]
         x_l = self.bound_matrix[i_cell, iter]
         x_r = self.bound_matrix[i_cell + 1, iter]
         def integrand(x): return self.cell_density(x) * (x - x_i) ** 2
@@ -69,19 +69,58 @@ class SpaceIterMesh:
                 total_energy[iter] += self.cell_energy(ic, iter)
         return total_energy
 
+    def set_initial_conditions(self):
+        self.seed_matrix[0, :] = np.sort(
+            np.random.uniform(self.x_min, self.x_max, self.n_cells))
+
     def set_boundary_conditions(self):
         self.bound_matrix[0, :] = self.x_min   # First row
         self.bound_matrix[-1, :] = self.x_max  # Last row
 
     def update_cell_bounds(self, iter: int):
-        seeds = self.seed_matrix[:, iter]
+        seeds = self.seed_matrix[iter, :]
         bounds = self.bound_matrix[:, iter]
         bounds[1:-1] = 0.5 * (seeds[:-1] + seeds[1:])  # Interior bounds
 
     def update_cell_seeds(self, iter: int):
         assert iter < self.n_iters - 1, "Cannot update beyond the last iteration"
-        seeds_new = self.seed_matrix[:, iter + 1]
+        seeds_new = self.seed_matrix[iter + 1, :]
 
         # Centroid calculation (not worth parallelizing)
         for ic in range(self.n_cells):
             seeds_new[ic] = self.cell_centroid(ic, iter)
+
+    def update_cell_seeds_aitken(self, iter: int, order: int = 2) -> bool:
+        assert iter < self.n_iters - 1, "Cannot update beyond the last iteration"
+        assert iter > order, "Not enough iterations to apply Aitken's acceleration"
+
+        # for ic in range(self.n_cells):
+        #     x_0 = self.seed_matrix[iter - 2, ic]
+        #     x_1 = self.seed_matrix[iter - 1, ic]
+        #     x_2 = self.seed_matrix[iter, ic]
+
+        #     dx = x_1 - x_0
+        #     # dx = x_2 - x_1
+        #     d2x = x_2 - 2*x_1 + x_0
+
+        #     if np.abs(d2x) > 1.0e-12:
+        #         x_new = x_0 - (dx**2) / d2x
+        #         # x_new = x_2 - (dx**2) / d2x
+        #         self.seed_matrix[iter + 1, ic] = x_new
+        #     else:
+        #         self.seed_matrix[iter + 1, ic] = self.cell_centroid(ic, iter)
+
+        x_0 = self.seed_matrix[iter - 2, :]
+        x_1 = self.seed_matrix[iter - 1, :]
+        x_2 = self.seed_matrix[iter, :]
+
+        dx = x_1 - x_0
+        d2x = x_2 - 2*x_1 + x_0
+
+        x_new = self.seed_matrix[iter + 1, :]
+        x_new[:] = x_0 - (dx**2) / d2x
+
+        if np.any(np.abs(d2x) > 1.0e-12):
+            return False
+
+        return True

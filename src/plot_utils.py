@@ -81,8 +81,8 @@ def plot_computed_cell_size(mesh: SpaceIterMesh):
 
 def plot_seeds_and_cells(mesh: SpaceIterMesh, iter: int):
     """Plot cells for a single iteration (static plot)."""
-    seeds = mesh.seed_matrix[:, iter]
-    bounds = mesh.bound_matrix[:, iter]
+    seeds = mesh.seed_matrix[iter, :]
+    bounds = mesh.bound_matrix[iter, :]
 
     assert len(bounds) == len(seeds) + \
         1, "cell_bounds must have one more entry than cell_seeds"
@@ -199,7 +199,7 @@ def animate_cells(
     def animate(frame):
         delta_iter = int(frame * iters_per_frame)
         iter = min(start_iter+delta_iter, mesh.n_iters-1)
-        seeds = mesh.seed_matrix[:, iter]
+        seeds = mesh.seed_matrix[iter, :]
         bounds = mesh.bound_matrix[:, iter]
 
         # Clear previous boundary lines
