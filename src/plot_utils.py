@@ -5,7 +5,7 @@ from IPython.display import HTML
 from cvt_utils import SpaceIterMesh
 
 
-def display_plots(plot_configs: list[dict], title: str, xlabel: str, ylabel: str, show_grid: bool = True, ylog=False, xlog=False, xlims=None, ylims=None):
+def display_plots(plot_configs: list[dict], title: str, xlabel: str, ylabel: str, show_grid: bool = True, ylog=None, xlog=None, xlims=None, ylims=None):
     """Display a list of plots in a Jupyter notebook."""
 
     plt.figure(figsize=(10, 6))
@@ -19,9 +19,21 @@ def display_plots(plot_configs: list[dict], title: str, xlabel: str, ylabel: str
     if ylims is not None:
         plt.ylim(ylims)
     if xlog:
-        plt.xscale("log")  # type: ignore
+        if type(xlog) is bool:
+            xlog = 10
+            plt.xscale("log")  # type: ignore
+        else:
+            assert type(xlog) is int and xlog > 1, \
+                "Log base must be an int > 1"
+            plt.xscale("log", base=xlog)  # type: ignore
     if ylog:
-        plt.yscale("log")  # type: ignore
+        if type(ylog) is bool:
+            ylog = 10
+            plt.yscale("log")  # type: ignore
+        else:
+            assert type(ylog) is int and ylog > 1, \
+                "Log base must be an int > 1"
+            plt.yscale("log", base=ylog)  # type: ignore
     plt.legend()
     plt.grid(show_grid, alpha=0.3)  # type: ignore
     plt.show()
@@ -46,7 +58,7 @@ def plot_cell_size_and_density(mesh: SpaceIterMesh):
     # Plot cell density
     x = np.linspace(x_min, x_max, 1000)
     plt.figure(figsize=(10, 6))
-    plt.plot(x, mesh.cell_density(x))  # type: ignore
+    plt.plot(x, mesh.density(x))  # type: ignore
     plt.title("Cell Density")  # type: ignore
     plt.xlabel("x")  # type: ignore
     plt.ylabel("Density")  # type: ignore
@@ -62,8 +74,7 @@ def plot_computed_cell_size(mesh: SpaceIterMesh):
     n_cells = mesh.n_cells
 
     # Get cell sizes at centroids
-    centroids = np.array([mesh.cell_centroid(ic, mesh.n_iters - 1)
-                          for ic in range(n_cells)])
+    centroids = mesh.cell_centroids[mesh.n_iters - 1, :]
     bounds = mesh.bound_matrix[mesh.n_iters - 1, :]
     cell_sizes = bounds[1:] - bounds[:-1]
 
